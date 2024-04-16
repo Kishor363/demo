@@ -1,0 +1,107 @@
+package com.mk.pattern;
+
+import java.util.Random;
+
+public class App {
+    private static final char TREE = 'T';
+    private static final char OPEN_SPACE = '.';
+    private static final char PLAYER = 'P';
+    private static final int OPEN_SPACE_PROBABILITY = 70;
+
+    public static void main(String[] args) {
+        char[][] forest = generateForest(10, 10);
+        displayForest(forest);
+    }
+
+    // Generate the forest
+    public static char[][] generateForest(int rows, int cols) {
+        Random rand = new Random();
+        char[][] forest = new char[rows][cols];
+
+        // Populate the forest with trees and open spaces
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (rand.nextInt(100) < OPEN_SPACE_PROBABILITY) {
+                    forest[i][j] = OPEN_SPACE;
+                } else {
+                    forest[i][j] = TREE;
+                }
+            }
+        }
+
+        // Place the player at a random empty location
+        int playerRow, playerCol;
+        do {
+            playerRow = rand.nextInt(rows);
+            playerCol = rand.nextInt(cols);
+        } while (forest[playerRow][playerCol] != OPEN_SPACE);
+
+        forest[playerRow][playerCol] = PLAYER;
+
+        return forest;
+    }
+
+    // Display the forest
+    public static void displayForest(char[][] forest) {
+        for (int i = 0; i < forest.length; i++) {
+            for (int j = 0; j < forest[0].length; j++) {
+                System.out.print(forest[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    // Move the player
+    public static void movePlayer(char[][] forest, char direction) {
+        int[] playerPos = getPlayerPosition(forest);
+
+        int newRow = playerPos[0];
+        int newCol = playerPos[1];
+
+        switch (direction) {
+            case 'W':
+                newRow--;
+                break;
+            case 'S':
+                newRow++;
+                break;
+            case 'A':
+                newCol--;
+                break;
+            case 'D':
+                newCol++;
+                break;
+            default:
+                System.out.println("Invalid direction. Please enter W, S, A, or D.");
+                return;
+        }
+
+        if (isValidMove(forest, newRow, newCol)) {
+            forest[playerPos[0]][playerPos[1]] = OPEN_SPACE;
+            forest[newRow][newCol] = PLAYER;
+        } else {
+            System.out.println("Invalid move. You can't move there.");
+        }
+    }
+
+    // Get the player's position
+    private static int[] getPlayerPosition(char[][] forest) {
+        int[] position = new int[2];
+        for (int i = 0; i < forest.length; i++) {
+            for (int j = 0; j < forest[0].length; j++) {
+                if (forest[i][j] == PLAYER) {
+                    position[0] = i;
+                    position[1] = j;
+                    return position;
+                }
+            }
+        }
+        return position;
+    }
+
+    // Check if the move is valid
+    private static boolean isValidMove(char[][] forest, int newRow, int newCol) {
+        return newRow >= 0 && newRow < forest.length && newCol >= 0 && newCol < forest[0].length
+                && forest[newRow][newCol] != TREE;
+    }
+}
